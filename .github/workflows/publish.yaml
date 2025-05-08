@@ -6,6 +6,7 @@ permissions:
   deployments: write
 
 on:
+  # Manual deployment through the Actions tab
   workflow_dispatch:
 
 jobs:
