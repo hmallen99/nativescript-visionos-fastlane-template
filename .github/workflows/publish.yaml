@@ -1,0 +1,68 @@
+name: Build VisionOS App
+
+permissions:
+  id-token: write
+  contents: write
+  deployments: write
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_visionos_app:
+    runs-on: macos-15 # Allows downloading the latest available xros sdk. macos-latest currently supports xros1.2.
+    steps:
+      - name: check Xcode version
+        run: /usr/bin/xcodebuild -version
+
+      - name: checkout repository
+        uses: actions/checkout@v4
+      # If your VisionOS repo uses git lfs to store assets, make sure to download them now.
+      #   with:
+      #     lfs: true
+
+      # - name: checkout lfs objects
+      #   run: git lfs checkout
+
+      # Lists the available xros sdks
+      - name: Validate VisionOS SDK
+        run: sudo xcodebuild -showsdks
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install cocoapods, xcodeproj, and fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "2.7.2"
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+
+      - name: Install Nativescript (ns/tns) Globally
+        run: npm install -g nativescript
+
+      # Runs the :visionos/beta lane described in fastlane/Fastfile
+      - name: Build and upload to TestFlight
+        run: bundle exec fastlane visionos beta
+        env:
+          # Fastlane Env variables
+          CI: true # Prevents CI from hanging on 2FA/user inputs in fastlane and ensures that the keychain is set up
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+
+          # Provisioning Profile info
+          GIT_AUTHORIZATION: ${{ secrets.GIT_AUTHORIZATION }} # <username>:<GitHub Auth Token for match credentials repository>
+          PROFILE_NAME: ${{ secrets.PROFILE_NAME }} # Name of the distribution provisioning profile, e.g. `org.nativescript.visionosapp`
+          PROFILE_UUID: ${{ secrets.PROFILE_UUID }} # UUID of the distribution provisioning profile. This can be found under the UUID tag in the .mobileprovision file.
+
+          # Apple Developer info
+          APPLE_EMAIL: ${{ secrets.APPLE_EMAIL }} # Apple Developer account email
+          CONTACT_PHONE: ${{ secrets.CONTACT_PHONE }} # Contact email for the testflight build
+          TEAM_ID: ${{ secrets.DEVELOPMENT_TEAM_ID }} # Apple Developer team ID
+
+          # Environment variables for uploading to test flight with an app-specific password
+          # Alternatively, you can follow this tutorial to set up an App Store connect API key:
+          # https://medium.com/swiftable/build-and-deploy-the-app-to-testflight-using-github-actions-with-fastlane-and-app-distribution-ff1786a8bf72
+          FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }} # Apple Developer account password
+          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }} # Apple Developer account app-specific password
+          FASTLANE_SESSION: ${{ secrets.FASTLANE_SESSION }} # Session generated using `fastlane spaceauth -u <email>`
