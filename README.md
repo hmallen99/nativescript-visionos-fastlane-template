@@ -27,7 +27,8 @@ bundle install
 ## GitHub Actions setup
 
 1. Copy `.github/workflows/publish.yaml` to your GitHub Actions workflow folder.
-2. Navigate to the "Actions" tab in your GitHub repository and run the "Build VisionOS App" workflow from your desired branch.
+2. Add secrets to your repository as described in the `Build and upload to TestFlight` section of `publish.yaml`.
+3. Navigate to the "Actions" tab in your GitHub repository and run the "Build VisionOS App" workflow from your desired branch.
 
 ## Further reading
 
