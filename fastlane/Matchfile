@@ -1,0 +1,13 @@
+# This file should be generated with `fastlane match init`
+git_url("https://github.com/your-org/your-certificates-repo")
+
+storage_mode("git")
+
+type("appstore")
+
+# ENV values are stored in .env or .env.default
+app_identifier(ENV["APP_IDENTIFIER"])
+username(ENV["APPLE_EMAIL"])
+
+team_id(ENV["TEAM_ID"])
+team_name(ENV["TEAM_NAME"])
