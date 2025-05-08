@@ -27,7 +27,7 @@ platform :visionos do
     )
 
     build_ios_app(
-      scheme: "logoxr",
+      scheme: "<your-scheme>",
       workspace: './platforms/visionos/<your-scheme>.xcworkspace',
       export_method: "app-store",
       output_directory: "./dist/ipas",
